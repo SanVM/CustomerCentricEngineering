@@ -4,7 +4,7 @@
 # Continous Product delivery 
 Are the various names by which this Sustenance Engineering team goes by and 
 
-This repo contains general guidelines for the sustenance of any software product by experience.
+This repo contains general guidelines for the sustenance of any software product carved from my experience.
 
 
 # So , You just landed as a lead Engineer  in customer centric/customer success/Sustenance / Continuous process integration (CPD) team !!!
