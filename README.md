@@ -56,15 +56,15 @@ So by now  we hav a formal and an informal channel to communicate and address is
 Once the cases start coming we need to assign it to respective engineers. This is called triaging and is usually done during daily standup. One challenge you face during triaging is engineers are in different time zone , so be aware of load of engineers across timezones.
 Rotating on-call support during weekend needs to be established ex: Pager duty . SLAs need to be defined/mapped based on what SLA product is sold ex:  Gold (1 day) , silver( 3 days) , bronze (5 days ) .
 
-Tip: Post at leat one update per day for cases you own. This will avoid unnecessary calls with stake holders .
+**Tip**: Post at leat one update per day for cases you own. This will avoid unnecessary calls with stake holders .
 
 Apart from regular cases there will be some very special cases which we call Escalations. Which will be usually incoming hot and those will be typically outages . you will be expected to jump on call as soon as possible . 
 YaY !! Do not be intimidated/demotivated by it unless you have more priority personal things to handle. This is an opportunity to shine because typically lot of things will be at stake and many stakeholders will be following the case.
 
-Tip:  80% of the escalation/outage issues I have seen had fairly simple solutions. So , take a deep breath and go for it. I would like quote one such case where the solution was fairly simple.
+**Tip**:  80% of the escalation/outage issues I have seen had fairly simple solutions. So , take a deep breath and go for it. I would like quote one such case where the solution was fairly simple.
            Ex: it was first noticed in one of the high profile customer that a table (OAuth2RefreshToken) was growing rapidly and 10 million rows were created over span of 15 days, each row contained about 1 KB of data . 10 million x 1KB = 10 GB of disk space. Due to this partition was full and application could perform any write operations and application was down from the end user perspective.
  Quick scan of the table came there was rouge OAuth2Client created by default to issue refresh token with TTL of 8 days and refresh tokens were piling up in the table. 
-Bonus tip:  As a customer advocate / troubleshooter your first job is to restore service in case of outages so customer can  get back in business. So , the immediate task was to take snapshot/ stop service and clean up the table and create some space.
+**Bonus tip**:  As a customer advocate / troubleshooter your first job is to restore service in case of outages so customer can  get back in business. So , the immediate task was to take snapshot/ stop service and clean up the table and create some space.
 10 million records deletion will take days if we use Delete * from “OAuth2RefreshToken” where “clientID” = ‘rougeClient’; because this is a full table scan and delete  row by row with lock overhead.
  So , I had to go back to my basics of SQL delete command for any options to speed up , quickly concluded delete is not the way to go by trying to delete 1000 records , which took 5 to 10 minutes approx. “TRUNCATE”  command to rescue because it does by pages and deletes entire table contents
 Tada !! We had restored the service with truncate command and within 90 minutes we were out of the woods. 
@@ -73,10 +73,16 @@ For to be providing quick resolution you need to know by heart some of the major
 
 # 3) Symptoms:
 Keep an open eye for the symptoms in the problem description and the solution provided , document/hashtag your symptoms and solutions , causes , preventive actions.
-RCACA: root cause analysis and corrective action , of ten you will be doing this exercise for various high severity cases documenting all of these is key because this is where you get to play a doctor because you will be bombarded with vague descriptions of problem symptoms , you would be typically questioning   back with standard set of questions like a) since how many days this is happening b) what wrong did you or what changed c) Any outages / network glitches d) Do you have any screenshots of the issue e) what was the user doing at this time f) Have you seen this before
+RCACA: root cause analysis and corrective action , of ten you will be doing this exercise for various high severity cases documenting all of these is key because this is where you get to play a doctor because you will be bombarded with vague descriptions of problem symptoms , you would be typically questioning   back with standard set of questions like
+a) since how many days this is happening 
+b) what wrong did you or what changed
+c) Any outages / network glitches 
+d) Do you have any screenshots of the issue
+e) what was the user doing at this time f) Have you seen this before
 g) Did you apply patches / performed upgrade/ installed any new software from different vendor/Any recent solution/hot-fix applied  etc , you would require this information  this issue is the side effect of something .
-Does this not look like a patient-Doctor conversation ? You  MUST have a running list of known symptoms and what things to look for in logs and /or customer setup . Tupically you would create a diagnostic tool to gather this information if logs alone are not sufficient.
-Tip:  when you have identified complete set of symptoms for a case try elimination approach to narrow down to a major contributing symptom and thereby identifying cause. Organize this data so that some of the AI(Artificial Intelligence) and  ML ( Machine Learning) algorithms can be applied and come out with some sort of QnA / chatbot system.
+Does this not look like a patient-Doctor conversation ? You  MUST have a running list of known symptoms and what things to look for in logs and /or customer setup . 
+Typically you would create a diagnostic tool to gather this information if logs alone are not sufficient.
+**Tip:**  when you have identified complete set of symptoms for a case try elimination approach to narrow down to a major contributing symptom and thereby identifying cause. Organize this data so that some of the AI(Artificial Intelligence) and  ML ( Machine Learning) algorithms can be applied and come out with some sort of QnA / chatbot system.
 
 
 # 3.A) Running Book / Playbook:   This is a by-product of above three major points . Your team should have a journal of important activities / day to day task happened/ frequently used commands / best practices/ How tos
@@ -132,7 +138,7 @@ For ex: make faster synchronization of AD/openldap , improve security for DB con
 
 # 8) TOOLS: 
 Know your required tools for the job very well. Knowledge and application of tools is what differentiates you from other engineering teams. Your toolkit typically would typicaly consist of Thread dump collection and analysis tool ( https://fastthread.io  ) , heap dump analysis ( Eclipse MAT) , DB dump analysis tools , Garbage collection tools ( https://gceasy.io ) 
-  Tip:  Enable gc , heapdump on crash for the jvm process . Enabling   GC will not have any overhead whereas enabling heapdump would require free diskspace of heap size or more . DBdump will be helpful to run large queries offline and perform some analysis on the query or query optimization techniques without impacting prod/pre-prd setups. We typically used DBdump to reproduce issues faster and in an isolated fashion.
+  **Tip**:  Enable gc , heapdump on crash for the jvm process . Enabling   GC will not have any overhead whereas enabling heapdump would require free diskspace of heap size or more . DBdump will be helpful to run large queries offline and perform some analysis on the query or query optimization techniques without impacting prod/pre-prd setups. We typically used DBdump to reproduce issues faster and in an isolated fashion.
 TCPDUMP : This is a vital tool and a must learn/know in this field. Gathering tcpdump and analyzing it with wire shark provide better insights of the end to end communication. By analyzing several tcpdumps you will identify a pattern what are your usual suspects. This is where you play cop/detective in some fashion. 
 From my experience for most network problems the pattern or the most culprit turned out to be the some configuration change / misconfiguration in load balancer. 
 Speaking about load balancer I would like a major major incident because of which our team was grounded in client location ( Mumbai city)  for an extra 4 days . The plan was initially we will be in and out of woods in 3 days and return flight tickets were booked accordingly and hotel reservation was only for 3 days .
