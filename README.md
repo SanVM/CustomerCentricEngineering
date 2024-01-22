@@ -137,44 +137,76 @@ For ex: make faster synchronization of AD/openldap , improve security for DB con
  So , if we did not have these  exercises frequently then this would have not been possible and engineering will be less motivated. Some of the inhouse monitoring tolls / log analysis tolls/chatbots / patch mgmt. tools would not have seen light.
 
 # 8) TOOLS: 
-Know your required tools for the job very well. Knowledge and application of tools is what differentiates you from other engineering teams. Your toolkit typically would typicaly consist of Thread dump collection and analysis tool ( https://fastthread.io  ) , heap dump analysis ( Eclipse MAT) , DB dump analysis tools , Garbage collection tools ( https://gceasy.io ) 
-  **Tip**:  Enable gc , heapdump on crash for the jvm process . Enabling   GC will not have any overhead whereas enabling heapdump would require free diskspace of heap size or more . DBdump will be helpful to run large queries offline and perform some analysis on the query or query optimization techniques without impacting prod/pre-prd setups. We typically used DBdump to reproduce issues faster and in an isolated fashion.
-TCPDUMP : This is a vital tool and a must learn/know in this field. Gathering tcpdump and analyzing it with wire shark provide better insights of the end to end communication. By analyzing several tcpdumps you will identify a pattern what are your usual suspects. This is where you play cop/detective in some fashion. 
+Know your required tools for the job very well. Knowledge and application of tools is what differentiates you from other engineering teams. 
+Your toolkit typically would typicaly consist of Thread dump collection and analysis tool ( https://fastthread.io  ) , heap dump analysis ( Eclipse MAT) , DB dump analysis tools , Garbage collection tools ( https://gceasy.io ) 
+  **Tip**:  Enable gc , heapdump on crash for the jvm process . Enabling   GC will not have any overhead whereas enabling heapdump would require free diskspace of heap size or more .
+  DBdump will be helpful to run large queries offline and perform some analysis on the query or query optimization techniques without impacting prod/pre-prd setups. 
+  We typically used DBdump to reproduce issues faster and in an isolated fashion.
+**TCPDUMP** : This is a vital tool and a must learn/know in this field. Gathering tcpdump and analyzing it with wire shark provide better insights of the end to end communication. 
+By analyzing several tcpdumps you will identify a pattern what are your usual suspects. This is where you play cop/detective in some fashion. 
 From my experience for most network problems the pattern or the most culprit turned out to be the some configuration change / misconfiguration in load balancer. 
-Speaking about load balancer I would like a major major incident because of which our team was grounded in client location ( Mumbai city)  for an extra 4 days . The plan was initially we will be in and out of woods in 3 days and return flight tickets were booked accordingly and hotel reservation was only for 3 days .
-We had our in-house representative at the client he had installed all the required software and our job was to configure / tie up these installed software based on recommended steps and perform basic testing , have the system table for a day and get client’s signoff and packup. First day for configuring and testing and troubleshooting . 2) Dry run and monitor for stability. “Troubleshoot if any” we were not expecting any . then gather stability/performance numbers , address any queries customer has and get sign off . 3) buffer day for any follow up if required.
-But like they say “man proposes god disposes” there was one problem identified on the second day during testing . Sporadically app launch used to fail , out of 10 launches of app 6 or more  used to fail.
-This problem kept us grounded at client’s place for 5 more days. We were trying to troubleshoot from various angles , application side , db , messaging , code , load , network etc everything looked well at very high level. When we asked client any recent change in network / load balancer the answer as usual was NO.
-The only unknown area or in other words which was not configured by us was  Load-balancer. So we gathered tcpdump and we could see that request packets were being dropped . we checked various standard parameters of the load balancer and they were all configured properly with recommended values. This deviated us from from LB and we were checking code , DB configuration  , integration code , basically we had all hands on deck and it started heating up inside the cleint’s office and outside client office as it was peak summer in Mumbai ( April month beginning ). Apart from load balancer we checked everything else. 
-The loadbalancer/networking engineering  team was different and when we engaged them they flaged green for LB configuration and looks good . BTW the LB was NSX-T which is our product , so we could get quick assistance.
-But I was insisting since requests/packets getting dropped according to tcpdump and it is a fact then it must be LB. So we made a list of timeout parameters instead changing one parameter and testing again . There it was one parameter with just “1” second as default timeout value and the parameter was “http keep-alive timeout” we increased the time to 30 seconds and Voila all the app launches were successful and working like charm.
-But we were wondering as a real enduser (not as an engineer) is this for real 1 second is way too less to timeout by default in the  external internet world and is this for real. It should have been at least 10 seconds . 
-The load-balancer(NSX-T) engineering  had their own reasons for keeping this value at 1 second default like to avoid request pileup etc and till date it is 1 second as can be seen in the  “http keep alive “ section of the link https://docs.vmware.com/en/VMware-Horizon-Cloud-Service/services/hzncloudmsazure.admin15/GUID-DEC9A12A-D3BA-497A-A930-E1174F9E26D2.html
+Speaking about load balancer I would like a major major incident because of which our team was grounded in client location ( Mumbai city)  for an extra 4 days .
+The plan was initially we will be in and out of woods in 3 days and return flight tickets were booked accordingly and hotel reservation was only for 3 days .
+We had our in-house representative at the client he had installed all the required software and our job was to configure / tie up these installed software based on recommended steps 
+and perform basic testing , have the system table for a day and get client’s signoff and packup.
+1) First day for configuring and testing and troubleshooting .
+2) Dry run and monitor for stability. “Troubleshoot if any” we were not expecting any . then gather stability/performance numbers , address any queries customer has and get sign off .
+3) buffer day for any follow up if required.
+   
+But like they say “man proposes god disposes” there was one problem identified on the second day during testing . 
+Sporadically app launch used to fail , out of 10 launches of app 6 or more  used to fail.
+This problem kept us grounded at client’s place for 5 more days. We were trying to troubleshoot from various angles , application side , db , messaging , code , load , network etc 
+everything looked well at very high level. When we asked client any recent change in network / load balancer the answer as usual was NO.
+The only unknown area or in other words which was not configured by us was  Load-balancer. So we gathered tcpdump and we could see that request packets were being dropped . 
+we checked various standard parameters of the load balancer and they were all configured properly with recommended values. T
+his deviated us from from LB and we were checking code , DB configuration  , integration code , basically we had all hands on deck and 
+it started heating up inside the cleint’s office and outside client office as it was peak summer in Mumbai ( April month beginning ). 
+Apart from load balancer we checked everything else. 
+The loadbalancer/networking engineering  team was different and when we engaged them they flaged green for LB configuration and looks good . 
+BTW the LB was NSX-T which is our product , so we could get quick assistance.
+But I was insisting since requests/packets getting dropped according to tcpdump and it is a fact then it must be LB. 
+So we made a list of timeout parameters instead changing one parameter and testing again . 
+**There it was one parameter with just “1” second as default timeout value and the parameter was “http keep-alive timeout” we increased the time to 30 seconds and Voila all the app launches were successful and working like charm.
+**
+But we were wondering as a real enduser (not as an engineer) is this for real 1 second is way too less to timeout by default in the  external internet world and is this for real. 
+It should have been at least 10 seconds . 
+The load-balancer(NSX-T) engineering  had their own reasons for keeping this value at 1 second default like to avoid request pileup etc and till date it is 1 second as can be seen in the  “http keep alive “ section of the link
+https://docs.vmware.com/en/VMware-Horizon-Cloud-Service/services/hzncloudmsazure.admin15/GUID-DEC9A12A-D3BA-497A-A930-E1174F9E26D2.html
+
 Getting back to other tools is sometimes you would have a tool off the shelf to troubleshoot then that becomes an opportunity to create one.
 There will be many such opportunities during your career , so be equipped with relevant skills and to learn something new on the feet and you get to be more creative.
 There was an issue reported in our product that one of the feature change password is not working.
-This was frequently seen in multiple customers , So as per official process tech support/filed goes on call with customer and do everything by book to troubleshoot from starting point of product installation checking other  configurational things not just related to change password , gather log bundles , screen shots , video recording etc .
-So this was some sort of over kill and I thought of a tool which can only test the change password feature , which does only one thing provided username , oldpassword and new password and respective krb5.conf file it should change password or log appropriate error messages with this we can could easily narrow down / reduce everybody’s efforts.
-Similarly there was another tool developed called java “LDAPSearch” with various options and custom debug messages. This was developed because we used to get frequent calls related to bind authentication / user pull/group pull is not working but the configuration is all done properly as per book or documentation . So we developed a small tool just containing these functionalities and customon log messages and with some customers we could even intall IDE like eclipse/intellij and and attach debugger and test it where in could identify point of failure .
+This was frequently seen in multiple customers , So as per official process tech support/filed goes on call with customer and 
+do everything by book to troubleshoot from starting point of product installation checking other  configurational things not just related to change password , gather log bundles , screen shots , video recording etc .
+So this was some sort of over kill and I thought of a tool which can only test the change password feature , 
+which does only one thing provided username , oldpassword and new password and respective krb5.conf file it should change password or
+log appropriate error messages with this we can could easily narrow down / reduce everybody’s efforts.
+Similarly there was another tool developed called java “LDAPSearch” with various options and custom debug messages. 
+This was developed because we used to get frequent calls related to bind authentication / user pull/group pull is not working but the configuration is all done properly as per book or documentation . 
+So we developed a small tool just containing these functionalities and customon log messages and with some customers 
+we could even intall IDE like eclipse/intellij and and attach debugger and test it where in could identify point of failure .
 
-The idea is that if there are no tools then you can treat this opportunity to unleash your creativity . the task would be generic and subset of product which solely help to address the issue . This will also help you to test your product in isolation and do not have to wait for entire setup.
+**The idea is that if there are no tools then you can treat this opportunity to unleash your creativity . the task would be generic and subset of product which solely help to address the issue . 
+This will also help you to test your product in isolation and do not have to wait for entire setup.**
 
 
 # 9) Release vehicle:
 You will be often to provide quick fixes / address immediate security issues remember recent log4j vulnerability ( 2021 ) / configuration issues / performance issues. Which cannot wait till official next release in case of on-prem , in case of cloud for next blue green switch.
 
-You should have a proper channel to deliver it and maintain it, also to get information at which patch level customer is at. The source code need to be versioned /baselined accordingly ( GIT , Liquibase etc) 
-In a continuous integration/coninous delivery (CI/CD)  system  employ these staging/pre-prod, blue-green deployments etc but this is usually take care by devops folks but sometimes you have to wear devops hat as well especially during fire-fighting. If it is on-prem then it becomes totally your job to create delivery mechanism and own it and maintain it. 
-10)	Documentation / Credentials vault/Setup safeguarding :  whatever you do in this job document it in one for or other and do what is documented . this should be a repeating cycle and culture in the team which will be huge benefit over time.
-Safegaurd your team/org’s setup information and have a credentials vault for test setup credentials and use it only withing your team . If you are loaning your setup for other team remember to provide different set of credentials.
-
-Some highly sensitive customers like fedRamp / DOD ( Department of Defense )/banks would not like to share sensitive information in log bundles , they would either not share log bundle or they would sanitize log  files and share  . To make their sanitization job easier and deliver logs quickly , you can can have a custom log level which does not print sensitive data ( like hostname , ip address, URLS , client name , username , email etc ).
+You should have a proper channel to deliver it and maintain it, also to get information at which patch level customer is at. 
+The source code need to be versioned /baselined accordingly ( GIT , Liquibase etc) 
+In a continuous integration/coninous delivery (CI/CD)  system  employ these staging/pre-prod, blue-green deployments etc but this is usually
+take care by devops folks but sometimes you have to wear devops hat as well especially during fire-fighting. If it is on-prem then it becomes totally your job to
+create delivery mechanism and own it and maintain it. 
 
 # 10)	Documentation / Credentials vault/Setup safeguarding :  
 whatever you do in this job document it in one for or other and do what is documented . this should be a repeating cycle and culture in the team which will be huge benefit over time.
-Safegaurd your team/org’s setup information and have a credentials vault for test setup credentials and use it only withing your team . If you are loaning your setup for other team remember to provide different set of credentials.
+Safegaurd your team/org’s setup information and have a credentials vault for test setup credentials and use it only withing your team . 
+If you are loaning your setup for other team remember to provide different set of credentials.
 
-Some highly sensitive customers like fedRamp / DOD ( Department of Defense )/banks would not like to share sensitive information in log bundles , they would either not share log bundle or they would sanitize log  files and share  . To make their sanitization job easier and deliver logs quickly , you can can have a custom log level which does not print sensitive data ( like hostname , ip address, URLS , client name , username , email etc ).
+Some highly sensitive customers like fedRamp / DOD ( Department of Defense )/banks would not like to share sensitive information in log bundles ,
+they would either not share log bundle or they would sanitize log  files and share  .
+To make their sanitization job easier and deliver logs quickly , you can can have a custom log level which does not print sensitive data ( like hostname , ip address, URLS , client name , username , email etc ).
 
 
 
