@@ -80,11 +80,15 @@ Tip:  when you have identified complete set of symptoms for a case try eliminati
 
 
 # 3.A) Running Book / Playbook:   This is a by-product of above three major points . Your team should have a journal of important activities / day to day task happened/ frequently used commands / best practices/ How tos
-      Ex: 
+Ex: 
 a)	How to take dbDump of different dbs in different OSes and all supported combinations of DB and OS.
+
 b)	Best practices of creating test setup / automation pipelines etc.
+
 c)	Case hand over plicies to other time zones . Rules and roster for the team .
+
 d)	Known issues / limitations of the product / performance testing / security testing results go here .
+
 e)	Frequent editions to these are required ex: contact information of team , point of contact other integration product team , even best practices some times change over time or turn out to be not a best practice.
 # 4)  Communication Channels:  
 Formaly field and other stake holders will interact with us using formal channels like Bugzilla , jira or email. If this is the only process for all cases irrespective of the problem’s severity or impact / minor or major/ simple or complex query then it becomes a process overhead. 
